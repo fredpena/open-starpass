@@ -1,5 +1,8 @@
 # Open Star Pass
 
+<img width="2560" height="1350" alt="open-starpass" src="https://github.com/user-attachments/assets/21f36ef4-9ca5-4420-94b9-d75f43a69116" />
+
+
 Open Star Pass is a Vaadin + Spring Boot application that explores a premium space-travel backoffice experience. The current product surface focuses on three admin-style areas:
 
 - `Bookings`
