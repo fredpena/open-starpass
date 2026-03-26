@@ -1,0 +1,75 @@
+name: Build and Deploy
+
+concurrency:
+  group: ${{ github.workflow }}-${{ github.ref }}
+  cancel-in-progress: true
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  build-and-deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Login to Docker Hub
+        run: echo "${{ secrets.DOCKER_PASSWORD }}" | docker login -u "${{ secrets.DOCKER_USERNAME }}" --password-stdin
+
+      - name: Set up Temurin JDK 25
+        uses: actions/setup-java@v5
+        with:
+          distribution: "temurin"
+          java-version: "25"
+          cache: maven
+
+      - name: Cache Maven wrapper
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/wrapper
+          key: ${{ runner.os }}-maven-wrapper-${{ hashFiles('.mvn/wrapper/maven-wrapper.properties') }}
+
+      - name: Cache Maven dependencies
+        uses: actions/cache@v4
+        with:
+          path: ~/.m2/repository
+          key: ${{ runner.os }}-maven-${{ hashFiles('**/pom.xml') }}
+          restore-keys: |
+            ${{ runner.os }}-maven-
+
+      - name: Verify Maven installation
+        run: ./mvnw -version
+
+      - name: Get product name and version
+        run: |
+          echo "VERSION=$(./mvnw help:evaluate -q -DforceStdout -D"expression=project.version")" >> $GITHUB_ENV
+          echo "NAME=$(./mvnw help:evaluate -q -DforceStdout -D"expression=project.name")" >> $GITHUB_ENV
+
+      - name: Build Java project with Maven
+        run: |
+          ./mvnw dependency:go-offline 
+          ./mvnw clean package -DskipTests 
+
+      - name: Build and push Docker image
+        run: |
+          docker build -t fredpena/${NAME}:latest .
+          docker tag fredpena/${NAME}:latest fredpena/${NAME}:${VERSION}
+          docker push fredpena/${NAME}:latest
+          docker push fredpena/${NAME}:${VERSION}
+
+      - name: SSH into the server and deploy
+        uses: appleboy/ssh-action@v1.0.3
+        with:
+          host: ${{ secrets.SERVER_HOST }}
+          username: ${{ secrets.SERVER_USER }}
+          key: ${{ secrets.SSH_PRIVATE_KEY }}
+          port: 2223
+          script: |
+            cd /usr/local/openstarpass
+            docker compose pull
+            docker compose down -v
+            docker compose up -d
