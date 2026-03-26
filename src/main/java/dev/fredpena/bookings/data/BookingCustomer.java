@@ -1,46 +1,23 @@
 package dev.fredpena.bookings.data;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "booking_customers")
 public class BookingCustomer {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false)
     private String name;
-
-    @Column(nullable = false, unique = true)
     private String email;
-
-    @Column(nullable = false)
     private String title;
-
-    @Column(nullable = false)
     private String status;
-
-    @Column(nullable = false)
     private String location;
-
-    @Column(nullable = false)
     private String phone;
-
-    @Column(name = "color_index", nullable = false)
     private int colorIndex;
-
-    @Column(nullable = false)
     private boolean vip;
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

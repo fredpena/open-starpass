@@ -1,43 +1,22 @@
 package dev.fredpena.admin.data;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.Table;
-
-@Entity
-@Table(name = "admin_planets")
 public class AdminPlanet {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
     private String name;
-
-    @Column(nullable = false)
     private String climate;
-
-    @Column(name = "gravity_pct", nullable = false)
     private int gravityPct;
-
-    @Column(name = "distance_label", nullable = false)
     private String distanceLabel;
-
-    @Column(name = "color_hex", nullable = false)
     private String colorHex;
-
-    @Column(nullable = false, length = 600)
     private String summary;
-
-    @Column(nullable = false)
     private boolean favorite;
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getName() {

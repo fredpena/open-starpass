@@ -12,48 +12,45 @@ import java.util.stream.Collectors;
 @Service
 public class BookingCatalogService {
 
-    private final BookingTripRepository bookingTripRepository;
-    private final BookingCustomerRepository bookingCustomerRepository;
+    private final BookingSessionStore sessionStore;
 
-    public BookingCatalogService(BookingTripRepository bookingTripRepository,
-                                 BookingCustomerRepository bookingCustomerRepository) {
-        this.bookingTripRepository = bookingTripRepository;
-        this.bookingCustomerRepository = bookingCustomerRepository;
+    public BookingCatalogService(BookingSessionStore sessionStore) {
+        this.sessionStore = sessionStore;
     }
 
     public List<BookingTrip> findAllUpcomingTrips() {
-        return bookingTripRepository.findAllByOrderByDepartOnAsc();
+        return sessionStore.findAllUpcomingTrips();
     }
 
     public Optional<BookingTrip> findTrip(Long id) {
-        return bookingTripRepository.findById(id);
+        return sessionStore.findTrip(id);
     }
 
     public List<BookingCustomer> findAllCustomers() {
-        return bookingCustomerRepository.findAllByOrderByNameAsc();
+        return sessionStore.findAllCustomers();
     }
 
     public Optional<BookingCustomer> findCustomer(Long id) {
-        return bookingCustomerRepository.findById(id);
+        return sessionStore.findCustomer(id);
     }
 
     public List<BookingTrip> findTripsForCustomer(Long customerId) {
-        return bookingTripRepository.findAllByCustomerIdOrderByDepartOnAsc(customerId);
+        return sessionStore.findTripsForCustomer(customerId);
     }
 
     public Map<Long, Long> bookingCountsByCustomer() {
-        return bookingTripRepository.findAll().stream()
+        return sessionStore.findAllUpcomingTrips().stream()
                 .collect(Collectors.groupingBy(trip -> trip.getCustomer().getId(), Collectors.counting()));
     }
 
     public Map<Long, BookingTrip> nextTripByCustomer() {
-        return bookingTripRepository.findAllByOrderByDepartOnAsc().stream()
+        return sessionStore.findAllUpcomingTrips().stream()
                 .collect(Collectors.toMap(trip -> trip.getCustomer().getId(), Function.identity(), (left, right) -> left));
     }
 
     public BookingSidebarData getSidebarData() {
-        List<BookingTrip> trips = bookingTripRepository.findAll();
-        List<BookingCustomer> customers = bookingCustomerRepository.findAll();
+        List<BookingTrip> trips = sessionStore.findAllUpcomingTrips();
+        List<BookingCustomer> customers = sessionStore.findAllCustomers();
         long confirmedCount = trips.stream().filter(trip -> "Confirmed".equals(trip.getStatus())).count();
         long vipCustomerCount = customers.stream().filter(BookingCustomer::isVip).count();
         return new BookingSidebarData(
@@ -65,7 +62,7 @@ public class BookingCatalogService {
     }
 
     public List<BookingTrip> recentTripsForCustomer(Long customerId, int limit) {
-        return bookingTripRepository.findAllByCustomerIdOrderByDepartOnAsc(customerId).stream()
+        return sessionStore.findTripsForCustomer(customerId).stream()
                 .sorted(Comparator.comparing(BookingTrip::getDepartOn))
                 .limit(limit)
                 .toList();

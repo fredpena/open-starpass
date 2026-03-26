@@ -1,64 +1,29 @@
 package dev.fredpena.bookings.data;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.FetchType;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.ManyToOne;
-import jakarta.persistence.Table;
-
 import java.time.LocalDate;
 
-@Entity
-@Table(name = "booking_trips")
 public class BookingTrip {
 
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
-
-    @Column(nullable = false, unique = true)
     private String code;
-
-    @Column(nullable = false)
     private String origin;
-
-    @Column(nullable = false)
     private String destination;
-
-    @Column(name = "depart_on", nullable = false)
     private LocalDate departOn;
-
-    @Column(name = "arrival_on", nullable = false)
     private LocalDate arrivalOn;
-
-    @Column(name = "duration_label", nullable = false)
     private String durationLabel;
-
-    @Column(nullable = false)
     private String status;
-
-    @Column(name = "vessel_name", nullable = false)
     private String vesselName;
-
-    @Column(name = "flight_code", nullable = false)
     private String flightCode;
-
-    @Column(name = "cabin_class", nullable = false)
     private String cabinClass;
-
-    @Column(nullable = false, length = 600)
     private String summary;
-
-    @ManyToOne(fetch = FetchType.EAGER, optional = false)
-    @JoinColumn(name = "customer_id", nullable = false)
     private BookingCustomer customer;
 
     public Long getId() {
         return id;
+    }
+
+    public void setId(Long id) {
+        this.id = id;
     }
 
     public String getCode() {
